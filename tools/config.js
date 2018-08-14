@@ -4,9 +4,11 @@ const commonjs = require('rollup-plugin-commonjs');
 const json = require('rollup-plugin-json');
 const globals = require('rollup-plugin-node-globals');
 const postcss = require('rollup-plugin-postcss');
-// const { uglify }  = require( 'rollup-plugin-uglify');
+const replace = require('rollup-plugin-replace');
 const packageJSON = require('../package.json');
 const path = require('path');
+const { uglify } = require('rollup-plugin-uglify');
+const _ = require('lodash');
 
 const __basename = path.dirname(__dirname);
 
@@ -17,45 +19,62 @@ const options = {
 
 const licenseText = `/**
  * Copyright (C) ${new Date().getFullYear()} club <club.10086.cn>
- * This source code is licensed under the MIT license found in the LICENSE file in the root directory of this source tree.
+ * Author: nasa.wang
  */`;
 
-const defaultPlugins = [
-  resolve({
-    jsnext: true,
-    main: true,
-    browser: true
-  }),
-  postcss({
-    extract: true,
-    plugins: [require('autoprefixer'), require('postcss-discard-comments')]
-  }),
-  commonjs({
-    include: '../node_modules/**'
-  }),
-  typescript({
-    typescript: require('typescript')
-  }),
-  globals(),
-  json()
-];
-const inputOptions = {
-  input: path.resolve(__basename, 'src/preact-app-startup.tsx'),
-  external: ['axios'],
-  treeshake: true,
-  plugins: defaultPlugins
-};
-const outputOptions = {
-  format: 'umd',
-  name: 'APP',
-  exports: 'named',
-  file: options.bundlePath,
-  banner: licenseText,
-  globals: {
-    axios: 'axios'
-  }
+const defaultPlugins = type => {
+  const isDev = type === 'dev';
+  const isDist = type === 'dist';
+  let plugins = _.compact([
+    resolve({
+      jsnext: true,
+      main: true,
+      browser: true
+    }),
+    postcss({
+      extract: true,
+      minimize: isDist,
+      plugins: [require('autoprefixer'), require('postcss-discard-comments')]
+    }),
+    commonjs({
+      include: '../node_modules/**'
+    }),
+    typescript({
+      typescript: require('typescript')
+    }),
+    globals(),
+    json(),
+    isDist &&
+      uglify({
+        output: {
+          preamble: licenseText
+        }
+      })
+  ]);
+  return plugins;
 };
 
+const inputOptions = type => {
+  return {
+    input: path.resolve(__basename, 'src/preact-app-startup.tsx'),
+    external: ['axios'],
+    treeshake: true,
+    plugins: defaultPlugins(type)
+  };
+};
+const outputOptions = type => {
+  const isDev = type === 'dev';
+  const isDist = type === 'dist';
+  return {
+    format: 'umd',
+    name: 'APP',
+    exports: 'named',
+    file: isDev ? options.bundlePath : options.minifiedBundlePath,
+    globals: {
+      axios: 'axios'
+    }
+  };
+};
 module.exports = {
   inputOptions,
   outputOptions

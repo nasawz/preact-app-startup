@@ -16,12 +16,12 @@ function startDevServer() {
       dest: 'dist',
       bundleExtension: '.tsx',
       root: __basename,
-      rollupOpts: inputOptions,
-      bundleOpts: outputOptions
+      rollupOpts: inputOptions('dev'),
+      bundleOpts: outputOptions('dev')
     })
   );
   app.use(express.static(path.resolve(__basename, 'static')));
-  app.use(express.static(path.resolve(__basename, 'dist')));
+  // app.use(express.static(path.resolve(__basename, 'dist')));
 
   /*=============proxy start==============*/
   // (() => {
