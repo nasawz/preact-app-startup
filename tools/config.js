@@ -49,14 +49,15 @@ const defaultPlugins = type => {
         output: {
           preamble: licenseText
         }
-      })
+      }),
+    replace({ ENV: JSON.stringify(process.env.NODE_ENV || 'development') })
   ]);
   return plugins;
 };
 
 const inputOptions = type => {
   return {
-    input: path.resolve(__basename, 'src/preact-app-startup.tsx'),
+    input: path.resolve(__basename, 'src/app.tsx'),
     external: ['axios'],
     treeshake: true,
     plugins: defaultPlugins(type)

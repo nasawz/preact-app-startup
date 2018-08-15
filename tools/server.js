@@ -1,27 +1,26 @@
 const express = require('express');
-const rollup = require('express-middleware-rollup');
 const path = require('path');
 const proxy = require('http-proxy-middleware');
 
 const __basename = path.dirname(__dirname);
 
-const { inputOptions, outputOptions } = require('./config');
 const port = 8000;
 
 function startDevServer() {
   const app = express();
-  app.use(
-    rollup({
-      src: 'src',
-      dest: 'dist',
-      bundleExtension: '.tsx',
-      root: __basename,
-      rollupOpts: inputOptions('dev'),
-      bundleOpts: outputOptions('dev')
-    })
-  );
+
+  if (process.env.NODE_ENV === 'development') {
+    const livereload = require('easy-livereload');
+    app.use(
+      livereload({
+        watchDirs: [path.join(__basename, 'static'), path.join(__basename, 'dist')],
+        port: process.env.LIVERELOAD_PORT || 35729
+      })
+    );
+  }
+
   app.use(express.static(path.resolve(__basename, 'static')));
-  // app.use(express.static(path.resolve(__basename, 'dist')));
+  app.use(express.static(path.resolve(__basename, 'dist')));
 
   /*=============proxy start==============*/
   // (() => {
