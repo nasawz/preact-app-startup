@@ -26,6 +26,7 @@ const defaultPlugins = type => {
   const isDev = type === 'dev';
   const isDist = type === 'dist';
   let plugins = _.compact([
+    // replace({ ENV: JSON.stringify(process.env.NODE_ENV || 'development') }),
     resolve({
       jsnext: true,
       main: true,
@@ -37,7 +38,7 @@ const defaultPlugins = type => {
       plugins: [require('autoprefixer'), require('postcss-discard-comments')]
     }),
     commonjs({
-      include: '../node_modules/**'
+      include: 'node_modules/**'
     }),
     typescript({
       typescript: require('typescript')
@@ -49,8 +50,7 @@ const defaultPlugins = type => {
         output: {
           preamble: licenseText
         }
-      }),
-    replace({ ENV: JSON.stringify(process.env.NODE_ENV || 'development') })
+      })
   ]);
   return plugins;
 };

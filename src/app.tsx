@@ -1,23 +1,56 @@
 import { h, render, Component } from 'preact';
+import { rehydrate } from 'rfx-core';
+import { inject, observer, Provider } from 'mobx-preact';
+import './stores';
+const store = rehydrate();
+
 import './style/index.less';
 import Contaner from './components/contaner';
 import Award from './components/award';
 import Question from './components/question';
 
-class Clock extends Component {
+@inject('store')
+@observer
+class Root extends Component<any, any> {
   state: any;
   constructor() {
     super();
-    // 设置初始的时间
-    this.state = {
-      curr: 'award'
-    };
   }
+
+  change2Question() {
+    let { common } = this.props.store;
+    let { changeCurr } = common;
+    changeCurr('question');
+  }
+
+  change2Award() {
+    let { common } = this.props.store;
+    let { changeCurr } = common;
+    changeCurr('award');
+  }
+
   render() {
-    let time = new Date().toLocaleTimeString();
-    let { curr } = this.state;
-    return <Contaner>{curr == 'award' ? <Award /> : <Question />}</Contaner>;
+    let { common } = this.props.store;
+    let { curr } = common;
+    return (
+      <div>
+        <Contaner>{curr == 'award' ? <Award /> : <Question />}</Contaner>
+        <a href="javascript:;" onClick={this.change2Award.bind(this)}>
+          award
+        </a>{' '}
+        <a href="javascript:;" onClick={this.change2Question.bind(this)}>
+          question
+        </a>
+      </div>
+    );
   }
 }
 
-render(<Clock />, document.body);
+render(
+  <div>
+    <Provider store={store}>
+      <Root />
+    </Provider>
+  </div>,
+  document.body
+);
