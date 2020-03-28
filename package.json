@@ -20,7 +20,7 @@
   "homepage": "https://github.com/nasawz/preact-app-startup#readme",
   "dependencies": {
     "@types/axios": "^0.14.0",
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "mobx": "^5.1.0",
     "mobx-preact": "^3.0.0",
     "preact": "^8.3.0",
